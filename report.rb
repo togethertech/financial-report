@@ -56,10 +56,7 @@ class Report
   end
 
   def print_income
-    @total_income = 0.0
-    @transactions.each do |transaction|
-      @total_income += transaction.received
-    end
+    @total_income = @transactions.map { |t| t.received }.reduce(:+)
     puts "Total income".ljust(17, "-") + "#{@total_income.round(2)}"
   end
 
@@ -95,4 +92,4 @@ class Transaction
 end
 
 
-r = Report.new(300)
+r = Report.new(60)
