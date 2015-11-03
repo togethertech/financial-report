@@ -2,17 +2,18 @@ require 'date'
 
 class Report
   attr_reader :transactions, :categorized, :totaled_categories
-  def initialize
+  def initialize(days_back)
     @transactions = []
     @totaled_categories = {}
     load_transactions
     trim_transactions
     trim_categories
     format_dates
-    select_date_range(999)
+    select_date_range(days_back)
     categorize
-    total_categories
+    total_spent_categories
     select_categories
+    print_income
     print_expenses
   end
 
@@ -24,6 +25,7 @@ class Report
 
   def trim_transactions
     @transactions = @transactions.select { |t| t.date =~ /([0-9]{2}\/){2}[0-9]{4}/ }
+    @transactions = @transactions.select { |t| t.category != "Loaned"}
   end
 
   def trim_categories
@@ -42,7 +44,7 @@ class Report
     @categorized = @transactions.group_by { |t| t.category }
   end
 
-  def total_categories
+  def total_spent_categories
     @categorized.each do |category, cat_transactions|
       total_spent = cat_transactions.map { |trans| trans.spent }.reduce(:+)
       @totaled_categories[category] = total_spent
@@ -53,13 +55,22 @@ class Report
     @totaled_categories = @totaled_categories.select { |c, total| total > 0.0 }
   end
 
+  def print_income
+    @total_income = 0.0
+    @transactions.each do |transaction|
+      @total_income += transaction.received
+    end
+    puts "Total income".ljust(17, "-") + "#{@total_income.round(2)}"
+  end
+
   def print_expenses
+    puts "Expense Categories"
     @grand_total = 0.0
     @totaled_categories.sort_by {|k,v| v}.reverse.each do |category, total|
-      puts "#{category} - #{total}"
+      puts "#{category}".ljust(17, "-") + "#{total.round(2)}"
       @grand_total += total
     end
-    puts "Grand total = #{@grand_total}"
+    puts "Total Expenses".ljust(17, "-") + "#{@grand_total.round(2)}"
   end
 
 end
@@ -71,10 +82,11 @@ class Transaction
     @date, @account, @payee, @category, @spent, @received = line_arr
 
     @spent = @spent.to_f
+    @received = @received.to_f
   end
 
   def trim_category
-    @category = @category.gsub("Together ", "").gsub("Tech ", "")
+    @category = @category.gsub("Together ", "").gsub("Tech ", "").gsub(" and Take-outs", "").gsub("Telephone", "Phone")
   end
 
   def parse_date
@@ -83,4 +95,4 @@ class Transaction
 end
 
 
-r = Report.new
+r = Report.new(300)
