@@ -1,5 +1,7 @@
 require 'date'
 
+$EXCHANGE = 13.74
+
 class Report
   attr_reader :transactions, :categorized, :totaled_categories
   def initialize(days_back)
@@ -15,6 +17,10 @@ class Report
     select_categories
     print_income
     print_expenses
+  end
+
+  def to_usd(zar)
+    (zar/$EXCHANGE).round(2)
   end
 
   def load_transactions
@@ -57,17 +63,17 @@ class Report
 
   def print_income
     @total_income = @transactions.map { |t| t.received }.reduce(:+)
-    puts "Total income".ljust(17, "-") + "#{@total_income.round(2)}"
+    puts "Total income".ljust(17, "-") + "#{to_usd(@total_income)}"
   end
 
   def print_expenses
     puts "Expense Categories"
     @grand_total = 0.0
     @totaled_categories.sort_by {|k,v| v}.reverse.each do |category, total|
-      puts "#{category}".ljust(17, "-") + "#{total.round(2)}"
+      puts "#{category}".ljust(17, "-") + "#{to_usd(total)}"
       @grand_total += total
     end
-    puts "Total Expenses".ljust(17, "-") + "#{@grand_total.round(2)}"
+    puts "Total Expenses".ljust(17, "-") + "#{to_usd(@grand_total)}"
   end
 
 end
@@ -92,4 +98,4 @@ class Transaction
 end
 
 
-r = Report.new(60)
+r = Report.new(365)
