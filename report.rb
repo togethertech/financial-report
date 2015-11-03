@@ -9,7 +9,7 @@ class Report
     trim_transactions
     trim_categories
     format_dates
-    select_date_range(60)
+    select_date_range(999)
     categorize
     total_categories
     select_categories
@@ -59,7 +59,7 @@ class Report
       puts "#{category} - #{total}"
       @grand_total += total
     end
-    puts @grand_total
+    puts "Grand total = #{@grand_total}"
   end
 
 end
