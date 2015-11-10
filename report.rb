@@ -75,14 +75,12 @@ class Report
     end
     puts "Total Expenses".ljust(17, "-") + "#{to_usd(@grand_total)}"
   end
-
 end
 
 class Transaction
   attr_accessor :date, :account, :payee, :category, :spent, :received
   def initialize(line)
-    line_arr = line.split(",")
-    @date, @account, @payee, @category, @spent, @received = line_arr
+    @date, @account, @payee, @category, @spent, @received = line.split(",")
 
     @spent = @spent.to_f
     @received = @received.to_f
@@ -97,5 +95,4 @@ class Transaction
   end
 end
 
-
-r = Report.new(365)
+r = Report.new(120)
