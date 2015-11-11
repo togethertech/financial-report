@@ -1,98 +1,102 @@
 require 'date'
+require_relative 'transaction'
 
 $EXCHANGE = 13.74
 
+# imports transactions & generates a report
 class Report
   attr_reader :transactions, :categorized, :totaled_categories
-  def initialize(days_back)
+  def initialize
     @transactions = []
     @totaled_categories = {}
     load_transactions
     trim_transactions
-    trim_categories
-    format_dates
-    select_date_range(days_back)
-    categorize
+    categorize_spent
     total_spent_categories
-    select_categories
-    print_income
-    print_expenses
+    # select_categories
+    # print_income
+    # print_expenses
   end
 
   def to_usd(zar)
-    (zar/$EXCHANGE).round(2)
+    zar # (zar/$EXCHANGE).round(2)
   end
 
   def load_transactions
-    File.readlines("transactions.csv").each do |line|
+    File.readlines('transactions.csv').each do |line|
       @transactions << Transaction.new(line)
     end
   end
 
   def trim_transactions
-    @transactions = @transactions.select { |t| t.date =~ /([0-9]{2}\/){2}[0-9]{4}/ }
-    @transactions = @transactions.select { |t| t.category != "Loaned"}
+    @transactions = @transactions.select { |t| t.date.class == Date }
+    @transactions = @transactions.select { |t| t.category != 'Loaned' }
   end
 
-  def trim_categories
-    @transactions.each { |t| t.trim_category }
+  # def select_date_range(days)
+  #   dates = @transactions.map { |t| t.date }
+  #   @transactions = @transactions.select { |t| (Date.today - t.date) < days }
+  # end
+
+  def spent_trans
+    @transactions.select(&:expense?)
   end
 
-  def format_dates
-    @transactions.each { |t| t.parse_date }
+  def received_trans
+    @transactions.reject(&:expense?)
   end
 
-  def select_date_range(days)
-    @transactions = @transactions.select { |t| (Date.today - t.date) < days }
+  def total_income
+    received_trans.reduce(0) { |sum, t| sum + t.received }
   end
 
-  def categorize
-    @categorized = @transactions.group_by { |t| t.category }
+  def categorize_spent
+    @categorized = spent_trans.group_by(&:category)
   end
 
   def total_spent_categories
     @categorized.each do |category, cat_transactions|
-      total_spent = cat_transactions.map { |trans| trans.spent }.reduce(:+)
-      @totaled_categories[category] = total_spent
+      total_spent = cat_transactions.reduce(0) { |sum, t| sum + t.spent }
+      @totaled_categories[category] = total_spent.round(2)
     end
   end
 
   def select_categories
-    @totaled_categories = @totaled_categories.select { |c, total| total > 0.0 }
+    @totaled_categories = @totaled_categories.select { |_c, total| total > 0.0 }
+  end
+
+  def total_exp(transactions)
+    transactions.reduce(0) { |sum, t| sum + t.spent }
+  end
+
+  def yearly_expenses
+    spent_trans.group_by { |t| t.date.year }
+  end
+
+  def monthly_expenses
+    @monthly_expenses = {}
+    yearly_expenses.each do |year, transactions|
+      @monthly_expenses[year] = transactions.group_by { |t| t.date.month }
+    end
+    @monthly_expenses
   end
 
   def print_income
-    @total_income = @transactions.map { |t| t.received }.reduce(:+)
-    puts "Total income".ljust(17, "-") + "#{to_usd(@total_income)}"
+    puts 'Total income'.ljust(17, '-') + "#{to_usd(total_income)}"
   end
 
   def print_expenses
-    puts "Expense Categories"
-    @grand_total = 0.0
-    @totaled_categories.sort_by {|k,v| v}.reverse.each do |category, total|
-      puts "#{category}".ljust(17, "-") + "#{to_usd(total)}"
-      @grand_total += total
+    puts 'Expense Categories'
+    @totaled_categories.sort_by { |_k, v| v }.reverse_each do |category, total|
+      puts "#{category}".ljust(17, '-') + "#{to_usd(total)}"
     end
-    puts "Total Expenses".ljust(17, "-") + "#{to_usd(@grand_total)}"
+    puts 'Total Expenses'.ljust(17, '-') + "#{to_usd(total_exp(@transactions).round(2))}"
   end
 end
 
-class Transaction
-  attr_accessor :date, :account, :payee, :category, :spent, :received
-  def initialize(line)
-    @date, @account, @payee, @category, @spent, @received = line.split(",")
-
-    @spent = @spent.to_f
-    @received = @received.to_f
-  end
-
-  def trim_category
-    @category = @category.gsub("Together ", "").gsub("Tech ", "").gsub(" and Take-outs", "").gsub("Telephone", "Phone")
-  end
-
-  def parse_date
-    @date = Date.parse(@date)
-  end
+if __FILE__ == $0
+  r = Report.new
+  puts r.print_income
+  puts r.print_expenses
+  puts r.monthly_expenses.class
 end
-
-r = Report.new(120)
