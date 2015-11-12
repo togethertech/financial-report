@@ -62,7 +62,11 @@ class Report
   end
 
   def total_income
-    total = received_trans.reduce(0) { |sum, t| sum + t.received }.format
+    received_trans.reduce(0) { |sum, t| sum + t.received }.format
+  end
+
+  def total_exp(transactions)
+    transactions.reduce(0) { |sum, t| sum + t.spent }
   end
 
   def categorize_spent
@@ -84,9 +88,6 @@ class Report
     @totaled_categories = @totaled_categories.select { |_c, total| total > 0.0 }
   end
 
-  def total_exp(transactions)
-    transactions.reduce(0) { |sum, t| sum + t.spent }
-  end
 
 
   def monthly_expenses
