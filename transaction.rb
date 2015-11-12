@@ -1,4 +1,6 @@
 require 'date'
+require 'money'
+I18n.config.available_locales = :en
 
 # an income or expense transaction with all of it's information
 class Transaction
@@ -6,8 +8,8 @@ class Transaction
   def initialize(line)
     @date, @account, @payee, @category, @spent, @received = line.split(',')
 
-    @spent = @spent.to_f
-    @received = @received.to_f
+    @spent = Money.new((@spent.to_f)*100, 'ZAR')
+    @received = Money.new((@received.to_f)*100, 'ZAR')
     trim_category
     parse_date
   end
@@ -21,6 +23,6 @@ class Transaction
   end
 
   def expense?
-    @spent != 0.0 && @received == 0.0
+    @spent.cents != 0 && @received.cents == 0
   end
 end

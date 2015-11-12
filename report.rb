@@ -62,7 +62,7 @@ class Report
   end
 
   def total_income
-    received_trans.reduce(0) { |sum, t| sum + t.received }
+    total = received_trans.reduce(0) { |sum, t| sum + t.received }.format
   end
 
   def categorize_spent
@@ -76,7 +76,7 @@ class Report
   def total_spent_categories
     @categorized.each do |category, cat_transactions|
       total_spent = cat_transactions.reduce(0) { |sum, t| sum + t.spent }
-      @totaled_categories[category] = total_spent.round(2)
+      @totaled_categories[category] = total_spent
     end
   end
 
@@ -105,8 +105,7 @@ class Report
     monthly_expenses.each do |year, months|
       puts year
       months.each do |month, transactions|
-        #puts "#{$MONTHS[month]}".ljust(17, '-') + 
-        puts "#{total_exp(transactions).round(2)}".rjust(9, '-')
+        puts "#{$MONTHS[month]}".ljust(10, '-') + "#{total_exp(transactions).format}".rjust(11, '-')
       end
     end
   end
@@ -114,15 +113,15 @@ class Report
   def print_expenses
     puts 'Expense Categories'
     @totaled_categories.sort_by { |_k, v| v }.reverse_each do |category, total|
-      puts "#{category}".ljust(17, '-') + "#{to_usd(total)}"
+      puts "#{category}".ljust(17, '-') + "#{total.format}".rjust(11, '-')
     end
-    puts 'Total Expenses'.ljust(17, '-') + "#{to_usd(total_exp(@transactions).round(2))}"
+    puts 'Total Expenses'.ljust(17, '-') + "#{total_exp(@transactions).format}".rjust(11, '-')
   end
 end
 
 if __FILE__ == $0
   r = Report.new
-  # puts r.print_income
-  # puts r.print_expenses
+  puts r.print_income
+  puts r.print_expenses
   r.print_monthly_expenses
 end

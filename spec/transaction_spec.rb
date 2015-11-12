@@ -22,13 +22,14 @@ describe Transaction do
   end
 
   it 'has a spent' do
-    expect(@exp_t.spent.class).to eq(Float)
-    expect(@exp_t.spent).to eq(25.0)
+    expect(@exp_t.spent.class).to eq(Money)
+    expect(@exp_t.spent.format).to eq("R25.00")
   end
 
   it 'has a received' do
-    expect(@inc_t.received).to eq(10_000.0)
-    expect(@exp_t.received).to eq(0.0)
+    expect(@exp_t.received.class).to eq(Money)
+    expect(@inc_t.received.format).to eq("R10,000.00")
+    expect(@exp_t.received.format).to eq("R0.00")
   end
 
   it 'knows if it was an income or expense' do

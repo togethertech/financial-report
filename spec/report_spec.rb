@@ -35,7 +35,7 @@ describe Report do
   end
 
   it 'adds up the total income' do
-    expect(@rep.total_income).to eq(174_249.4)
+    expect(@rep.total_income).to eq("R174,249.40")
   end
 
   # xit 'selects a date range' do
@@ -51,11 +51,11 @@ describe Report do
 
   it 'adds up the total of each category' do
     expect(@rep.totaled_categories.class).to eq(Hash)
-    expect(@rep.totaled_categories['Classroom']).to eq(88743.78)
+    expect(@rep.totaled_categories['Classroom'].format).to eq("R88,743.78")
   end
 
   it 'adds up the grand total of all expenses' do
-    expect(@rep.total_exp(@rep.transactions).round(2)).to eq(173932.88)
+    expect(@rep.total_exp(@rep.transactions).format).to eq("R173,932.88")
   end
 
   it 'groups transactions by year' do
@@ -78,6 +78,6 @@ describe Report do
   end
 
   it 'adds up total expenses of a month' do
-    expect(@rep.total_exp(@rep.monthly_expenses[2014][8])).to eq(21931.97)
+    expect(@rep.total_exp(@rep.monthly_expenses[2014][8]).format).to eq("R21,931.97")
   end
 end
