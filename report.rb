@@ -1,6 +1,21 @@
 require 'date'
 require_relative 'transaction'
 
+$MONTHS = {
+  1 => 'January',
+  2 => 'February',
+  3 => 'March',
+  4 => 'April',
+  5 => 'May',
+  6 => 'June',
+  7 => 'July',
+  8 => 'August',
+  9 => 'September',
+  10 => 'October',
+  11 => 'November',
+  12 => 'December'
+}
+
 $EXCHANGE = 13.74
 
 # imports transactions & generates a report
@@ -54,6 +69,10 @@ class Report
     @categorized = spent_trans.group_by(&:category)
   end
 
+  def yearly_expenses
+    spent_trans.group_by { |t| t.date.year }
+  end
+
   def total_spent_categories
     @categorized.each do |category, cat_transactions|
       total_spent = cat_transactions.reduce(0) { |sum, t| sum + t.spent }
@@ -69,9 +88,6 @@ class Report
     transactions.reduce(0) { |sum, t| sum + t.spent }
   end
 
-  def yearly_expenses
-    spent_trans.group_by { |t| t.date.year }
-  end
 
   def monthly_expenses
     @monthly_expenses = {}
@@ -85,6 +101,16 @@ class Report
     puts 'Total income'.ljust(17, '-') + "#{to_usd(total_income)}"
   end
 
+  def print_monthly_expenses
+    monthly_expenses.each do |year, months|
+      puts year
+      months.each do |month, transactions|
+        #puts "#{$MONTHS[month]}".ljust(17, '-') + 
+        puts "#{total_exp(transactions).round(2)}".rjust(9, '-')
+      end
+    end
+  end
+
   def print_expenses
     puts 'Expense Categories'
     @totaled_categories.sort_by { |_k, v| v }.reverse_each do |category, total|
@@ -96,7 +122,7 @@ end
 
 if __FILE__ == $0
   r = Report.new
-  puts r.print_income
-  puts r.print_expenses
-  puts r.monthly_expenses.class
+  # puts r.print_income
+  # puts r.print_expenses
+  r.print_monthly_expenses
 end
