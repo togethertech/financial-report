@@ -103,12 +103,12 @@ class Report
   end
 
   def split_once_vs_ongoing(transactions)
-    once_vs_ongoing = {classroom: [], ongoing: []}
+    once_vs_ongoing = {one_time: [], recurring: []}
     transactions.each do |t|
       if t.category == 'Classroom'
-        once_vs_ongoing[:classroom] << t
+        once_vs_ongoing[:one_time] << t
       else
-        once_vs_ongoing[:ongoing] << t
+        once_vs_ongoing[:recurring] << t
       end
     end
     once_vs_ongoing

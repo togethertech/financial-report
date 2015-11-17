@@ -83,20 +83,20 @@ describe Report do
 
   it 'splits ongoing from regular expenses' do
     expect(@report.split_once_vs_ongoing(@report.transactions).class).to eq(Hash)
-    expect(@report.split_once_vs_ongoing(@report.transactions)[:classroom].class).to eq(Array)
-    expect(@report.split_once_vs_ongoing(@report.transactions)[:classroom].class).to eq(Array)
-    expect(@report.split_once_vs_ongoing(@report.transactions)[:classroom][0].class).to eq(Transaction)
-    expect(@report.split_once_vs_ongoing(@report.transactions)[:classroom][0].category).to eq("Classroom")
+    expect(@report.split_once_vs_ongoing(@report.transactions)[:one_time].class).to eq(Array)
+    expect(@report.split_once_vs_ongoing(@report.transactions)[:one_time].class).to eq(Array)
+    expect(@report.split_once_vs_ongoing(@report.transactions)[:one_time][0].class).to eq(Transaction)
+    expect(@report.split_once_vs_ongoing(@report.transactions)[:one_time][0].category).to eq("Classroom")
     once_vs_ongoing = @report.split_once_vs_ongoing(@report.transactions)
-    expect(once_vs_ongoing[:classroom].length).to eq(87)
+    expect(once_vs_ongoing[:one_time].length).to eq(87)
     expect(once_vs_ongoing[:ongoing].length).to eq(237)
 
-    once_vs_ongoing[:classroom].each do |t|
+    once_vs_ongoing[:one_time].each do |t|
       expect(t.class).to eq(Transaction)
       expect(t.category).to eq('Classroom')
     end
 
-    once_vs_ongoing[:ongoing].each do |t|
+    once_vs_ongoing[:recurring].each do |t|
       expect(t.class).to eq(Transaction)
       expect(t.category).not_to eq('Classroom')
     end
