@@ -21,7 +21,8 @@ $EXCHANGE = 13.74
 # imports transactions & generates a report
 class Report
   attr_reader :transactions, :categorized, :totaled_categories
-  def initialize
+  def initialize(file)
+    @file = file
     @transactions = []
     @totaled_categories = {}
     load_transactions
@@ -38,7 +39,7 @@ class Report
   end
 
   def load_transactions
-    File.readlines('transactions.csv').each do |line|
+    File.readlines(@file).each do |line|
       @transactions << Transaction.new(line)
     end
   end
@@ -98,6 +99,24 @@ class Report
     @monthly_expenses
   end
 
+  def split_once_vs_ongoing(transactions)
+    once_vs_ongoing = {once: [], ongoing: []}
+    transactions.each do |t|
+      if t.category == 'Classroom'
+        once_vs_ongoing[:once] << t
+      else
+        once_vs_ongoing[:ongoing] << t
+      end
+    end
+    once_vs_ongoing
+  end
+
+  def print_line(description, amount)
+    if amount != 0
+      puts "#{description}".ljust(17, '-') + "#{amount.format}".rjust(11, '-')
+    end
+  end
+
   def print_income
     puts 'Total income'.ljust(17, '-') + "#{to_usd(total_income)}"
   end
@@ -106,23 +125,36 @@ class Report
     monthly_expenses.each do |year, months|
       puts year
       months.each do |month, transactions|
-        puts "#{$MONTHS[month]}".ljust(10, '-') + "#{total_exp(transactions).format}".rjust(11, '-')
+        print_line($MONTHS[month], total_exp(transactions))
       end
     end
   end
 
-  def print_expenses
+  def print_split_monthly_expenses
+    monthly_expenses.each do |year, months|
+      months.each do |month, transactions|
+        puts "#{$MONTHS[month]} #{year}"
+        split_once_vs_ongoing(transactions).each do |type, transactions|
+          print_line(type, total_exp(transactions))
+        end
+        puts
+      end
+    end
+  end
+
+  def print_categorized_expenses
     puts 'Expense Categories'
     @totaled_categories.sort_by { |_k, v| v }.reverse_each do |category, total|
-      puts "#{category}".ljust(17, '-') + "#{total.format}".rjust(11, '-')
+      print_line(category, total)
     end
-    puts 'Total Expenses'.ljust(17, '-') + "#{total_exp(@transactions).format}".rjust(11, '-')
+    print_line('Total Expenses', total_exp(@transactions))
   end
 end
 
 if __FILE__ == $0
-  r = Report.new
-  puts r.print_income
-  puts r.print_expenses
-  r.print_monthly_expenses
+  r = Report.new('transactions.csv')
+  # puts r.print_income
+  # puts r.print_categorized_expenses
+  # r.print_monthly_expenses
+  r.print_split_monthly_expenses
 end
