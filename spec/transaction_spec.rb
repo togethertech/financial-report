@@ -23,13 +23,13 @@ describe Transaction do
 
   it 'has a spent' do
     expect(@exp_t.spent.class).to eq(Money)
-    expect(@exp_t.spent.format).to eq("R25.00")
+    expect(@exp_t.spent.format).to eq('R25.00')
   end
 
   it 'has a received' do
     expect(@exp_t.received.class).to eq(Money)
-    expect(@inc_t.received.format).to eq("R10,000.00")
-    expect(@exp_t.received.format).to eq("R0.00")
+    expect(@inc_t.received.format).to eq('R10,000.00')
+    expect(@exp_t.received.format).to eq('R0.00')
   end
 
   it 'knows if it was an income or expense' do

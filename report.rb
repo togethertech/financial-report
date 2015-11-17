@@ -92,8 +92,6 @@ class Report
     @totaled_categories = @totaled_categories.select { |_c, total| total > 0.0 }
   end
 
-
-
   def monthly_expenses
     @monthly_expenses = {}
     yearly_expenses.each do |year, transactions|
@@ -103,7 +101,7 @@ class Report
   end
 
   def split_once_vs_ongoing(transactions)
-    once_vs_ongoing = {one_time: [], recurring: []}
+    once_vs_ongoing = { one_time: [], recurring: [] }
     transactions.each do |t|
       if t.category == 'Classroom'
         once_vs_ongoing[:one_time] << t
@@ -137,10 +135,10 @@ class Report
     monthly_expenses.each do |year, months|
       months.each do |month, transactions|
         puts "#{$MONTHS[month]} #{year}"
-        split_once_vs_ongoing(transactions).each do |type, transactions|
-          print_line(type, total_exp(transactions))
+        split_once_vs_ongoing(transactions).each do |type, trans|
+          print_line(type, total_exp(trans))
         end
-        print_line("Monthly Total", total_exp(transactions))
+        print_line('Monthly Total', total_exp(trans))
         puts
       end
     end
@@ -155,7 +153,7 @@ class Report
   end
 end
 
-if __FILE__ == $0
+if __FILE__ == $PROGRAM_NAME
   r = Report.new('transactions.csv', 'USD', 0.08)
   # puts r.print_income
   # puts r.print_categorized_expenses

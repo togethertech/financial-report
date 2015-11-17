@@ -8,8 +8,8 @@ class Transaction
   def initialize(line)
     @date, @account, @payee, @category, @spent, @received = line.split(',')
 
-    @spent = Money.new((@spent.to_f)*100, 'ZAR')
-    @received = Money.new((@received.to_f)*100, 'ZAR')
+    @spent = Money.new((@spent.to_f) * 100, 'ZAR')
+    @received = Money.new((@received.to_f) * 100, 'ZAR')
     trim_category
     parse_date
   end
