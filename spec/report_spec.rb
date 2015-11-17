@@ -83,15 +83,15 @@ describe Report do
 
   it 'splits ongoing from regular expenses' do
     expect(@report.split_once_vs_ongoing(@report.transactions).class).to eq(Hash)
-    expect(@report.split_once_vs_ongoing(@report.transactions)[:once].class).to eq(Array)
-    expect(@report.split_once_vs_ongoing(@report.transactions)[:once].class).to eq(Array)
-    expect(@report.split_once_vs_ongoing(@report.transactions)[:once][0].class).to eq(Transaction)
-    expect(@report.split_once_vs_ongoing(@report.transactions)[:once][0].category).to eq("Classroom")
+    expect(@report.split_once_vs_ongoing(@report.transactions)[:classroom].class).to eq(Array)
+    expect(@report.split_once_vs_ongoing(@report.transactions)[:classroom].class).to eq(Array)
+    expect(@report.split_once_vs_ongoing(@report.transactions)[:classroom][0].class).to eq(Transaction)
+    expect(@report.split_once_vs_ongoing(@report.transactions)[:classroom][0].category).to eq("Classroom")
     once_vs_ongoing = @report.split_once_vs_ongoing(@report.transactions)
-    expect(once_vs_ongoing[:once].length).to eq(87)
+    expect(once_vs_ongoing[:classroom].length).to eq(87)
     expect(once_vs_ongoing[:ongoing].length).to eq(237)
 
-    once_vs_ongoing[:once].each do |t|
+    once_vs_ongoing[:classroom].each do |t|
       expect(t.class).to eq(Transaction)
       expect(t.category).to eq('Classroom')
     end
@@ -101,6 +101,9 @@ describe Report do
       expect(t.category).not_to eq('Classroom')
     end
 
+  end
+
+  it 'receives a currency in which it will print reports' do
   end
 
 end

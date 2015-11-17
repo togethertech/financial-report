@@ -100,10 +100,10 @@ class Report
   end
 
   def split_once_vs_ongoing(transactions)
-    once_vs_ongoing = {once: [], ongoing: []}
+    once_vs_ongoing = {classroom: [], ongoing: []}
     transactions.each do |t|
       if t.category == 'Classroom'
-        once_vs_ongoing[:once] << t
+        once_vs_ongoing[:classroom] << t
       else
         once_vs_ongoing[:ongoing] << t
       end
@@ -113,7 +113,7 @@ class Report
 
   def print_line(description, amount)
     if amount != 0
-      puts "#{description}".ljust(17, '-') + "#{amount.format}".rjust(11, '-')
+      puts "#{description.capitalize}".ljust(17, '-') + "#{amount.format}".rjust(11, '-')
     end
   end
 
@@ -137,6 +137,7 @@ class Report
         split_once_vs_ongoing(transactions).each do |type, transactions|
           print_line(type, total_exp(transactions))
         end
+        print_line("Monthly Total", total_exp(transactions))
         puts
       end
     end
