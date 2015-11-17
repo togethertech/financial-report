@@ -20,8 +20,11 @@ $EXCHANGE = 13.74
 
 # imports transactions & generates a report
 class Report
-  attr_reader :transactions, :categorized, :totaled_categories
-  def initialize(file)
+  attr_reader :transactions, :categorized, :totaled_categories, :output_currency
+  def initialize(file, output_currency, zar_to_usd)
+    Money.default_bank = Money::Bank::VariableExchange.new(Money::RatesStore::Memory.new)
+    Money.default_bank.add_rate('ZAR', 'USD', zar_to_usd)
+    @output_currency = output_currency
     @file = file
     @transactions = []
     @totaled_categories = {}
@@ -113,7 +116,7 @@ class Report
 
   def print_line(description, amount)
     if amount != 0
-      puts "#{description.capitalize}".ljust(17, '-') + "#{amount.format}".rjust(11, '-')
+      puts "#{description.capitalize}".ljust(17, '-') + "#{amount.exchange_to(@output_currency).format}".rjust(11, '-')
     end
   end
 
@@ -153,7 +156,7 @@ class Report
 end
 
 if __FILE__ == $0
-  r = Report.new('transactions.csv')
+  r = Report.new('transactions.csv', 'USD', 0.08)
   # puts r.print_income
   # puts r.print_categorized_expenses
   # r.print_monthly_expenses

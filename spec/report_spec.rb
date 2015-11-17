@@ -2,7 +2,7 @@ require_relative '../report'
 
 describe Report do
   before do
-    @report = Report.new('spec/test_transactions.csv')
+    @report = Report.new('spec/test_transactions.csv', 'USD', 0.08)
   end
 
   it 'is a report' do
@@ -104,6 +104,8 @@ describe Report do
   end
 
   it 'receives a currency in which it will print reports' do
+    @report = Report.new('spec/test_transactions.csv', 'USD', 0.08)
+    expect(@report.output_currency).to eq('USD')
   end
 
 end
