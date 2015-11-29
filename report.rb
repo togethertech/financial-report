@@ -138,7 +138,7 @@ class Report
         split_once_vs_ongoing(transactions).each do |type, trans|
           print_line(type, total_exp(trans))
         end
-        print_line('Monthly Total', total_exp(trans))
+        print_line('Monthly Total', total_exp(transactions))
         puts
       end
     end
